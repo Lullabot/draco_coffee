@@ -1,0 +1,5 @@
+name: Draco Coffee
+type: module
+description: Makes sure that editors have coffee
+package: Custom
+core: 8.x

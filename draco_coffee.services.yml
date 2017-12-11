@@ -1,0 +1,4 @@
+services:
+  draco_coffee.manager:
+    class: Drupal\draco_coffee\DracoCoffeeManager
+    arguments: ['@config.factory', '@entity_type.manager', '@state', '@datetime.time']
