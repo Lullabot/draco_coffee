@@ -81,18 +81,15 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
    *   The Draco Coffee Manager service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
-   *   The route match.
    * @param \Drupal\Core\State\StateInterface $state
    *   The State API service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, AccountProxyInterface $current_user, DracoCoffeeManager $draco_coffee_manager, EntityTypeManagerInterface $entity_type_manager, RouteMatchInterface $route_match, StateInterface $state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, AccountProxyInterface $current_user, DracoCoffeeManager $draco_coffee_manager, EntityTypeManagerInterface $entity_type_manager, StateInterface $state) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->configFactory = $config_factory;
     $this->currentUser = $current_user;
     $this->dracoCoffeeManager = $draco_coffee_manager;
     $this->entityTypeManager = $entity_type_manager;
-    $this->routeMatch = $route_match;
     $this->state = $state;
   }
 
@@ -108,7 +105,6 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
       $container->get('current_user'),
       $container->get('draco_coffee.manager'),
       $container->get('entity_type.manager'),
-      $container->get('current_route_match'),
       $container->get('state')
     );
   }
@@ -144,7 +140,7 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
     if (!$barista) {
       $markup = $this->t('No coffee being served');
     }
-    elseif ($barista->id == $this->currentUser->getAccount()->id()) {
+    elseif ($barista->id() == $this->currentUser->getAccount()->id()) {
       $markup = $this->t('go make COFFEEEEEEEEEEEEEEEEEEEE!');
     }
     else {

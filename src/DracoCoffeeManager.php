@@ -145,8 +145,7 @@ class DracoCoffeeManager {
 
     // Check if an hour has passed since the last pot was served.
     $last_pot = $this->state->get('draco_coffee.start') +
-      ($this->state->get('draco_coffee.pot_counter') * 3600) +
-      3600;
+      ($this->state->get('draco_coffee.pot_counter') * 3600);
     if ($last_pot < $this->time->getCurrentTime()) {
       $this->state->delete('draco_coffee.start');
       $this->state->delete('draco_coffee.barista');
@@ -165,10 +164,25 @@ class DracoCoffeeManager {
 
   /**
    * Returns the user account of the current barista.
+   *
+   * @return \Drupal\Core\Session\AccountProxyInterface|NULL
+   *   The user account or NULL if there is no barista.
    */
   public function getBarista() {
+    $uid = $this->state->get('draco_coffee.barista');
+    if (empty($uid)) {
+      return NULL;
+    }
     return $this->entityTypeManager->getStorage('user')
       ->load($this->state->get('draco_coffee.barista'));
+  }
+
+  /**
+   * Returns the role for baristas.
+   */
+  public function getRole() {
+    $config = $this->configFactory->get('draco_coffee.settings');
+    return $config->get('role');
   }
 
 }
