@@ -87,21 +87,9 @@ class SettingsForm extends ConfigFormBase {
 
     $form['pots'] = [
       '#type' => 'number',
-      '#title' => $this->t('Number of pots'),
-      '#description' => $this->t('A pot of coffee will be made each interval until it adds up to this number.'),
+      '#title' => $this->t('Number of times to refill the pot'),
+      '#description' => $this->t('If a team needs coffee for 8 hours, then they would need 8 pots. Every hour a different user will be announced to refill the pot.'),
       '#default_value' => $config->get('pots'),
-    ];
-
-    $form['interval'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Interval to refill'),
-      '#description' => $this->t('At the end of each interval, a pot of coffee will be made.'),
-      '#default_value' => $config->get('interval'),
-      '#options' => [
-        '1' => 'one hour',
-        '2' => 'two hours',
-        '3' => 'three hours',
-      ],
     ];
 
     return parent::buildForm($form, $form_state);
@@ -114,7 +102,6 @@ class SettingsForm extends ConfigFormBase {
     $this->config('draco_coffee.settings')
       ->set('role', $form_state->getValue('role'))
       ->set('pots', $form_state->getValue('pots'))
-      ->set('interval', $form_state->getValue('interval'))
       ->save();
     parent::submitForm($form, $form_state);
 
