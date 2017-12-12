@@ -87,7 +87,7 @@ class DracoCoffeeManager {
    *
    * We compare the number of pots already made against the configured value,
    * and then we check if there are remaining pots to make by comparing
-   * the time of the last pot with the current time.
+   * the time of the next pot with the current time.
    *
    * @return bool
    *   TRUE if a new pot is needed. FALSE otherwise.
@@ -136,7 +136,7 @@ class DracoCoffeeManager {
   /**
    * Clears status variables after the last pot has been drunk.
    */
-  protected function clearLastPot() {
+  protected function clear() {
     $config = $this->configFactory->get('draco_coffee.settings');
     // Check if the last pot has been served.
     if ($this->state->get('draco_coffee.pot_counter') < $config->get('pots')) {

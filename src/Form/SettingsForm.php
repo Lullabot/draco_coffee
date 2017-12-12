@@ -80,6 +80,7 @@ class SettingsForm extends ConfigFormBase {
     $form['role'] = [
       '#type' => 'select',
       '#title' => $this->t('Role of the coffee makers'),
+      '#description' => $this->t('Select the role that will be used to find who will make each coffee pot.'),
       '#default_value' => $config->get('role'),
       '#options' => user_role_names(TRUE),
     ];
@@ -87,12 +88,14 @@ class SettingsForm extends ConfigFormBase {
     $form['pots'] = [
       '#type' => 'number',
       '#title' => $this->t('Number of pots'),
+      '#description' => $this->t('A pot of coffee will be made each interval until it adds up to this number.'),
       '#default_value' => $config->get('pots'),
     ];
 
     $form['interval'] = [
       '#type' => 'select',
       '#title' => $this->t('Interval to refill'),
+      '#description' => $this->t('At the end of each interval, a pot of coffee will be made.'),
       '#default_value' => $config->get('interval'),
       '#options' => [
         '1' => 'one hour',
