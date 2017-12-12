@@ -71,14 +71,15 @@ class DracoCoffeeManager {
       return;
     }
 
-
     if ($this->isRefillNeeded()) {
       $this->setBarista();
       $this->increasePotCounter();
+
     }
     else {
-      $this->clearLastPot();
+      $this->clear();
     }
+    \Drupal::service('cache_tags.invalidator')->invalidateTags(['draco_coffee:state']);
   }
 
   /**
@@ -110,7 +111,6 @@ class DracoCoffeeManager {
       ->execute();
     $victim = $candidates[array_rand($candidates)];
     $this->state->set('draco_coffee.barista', $victim);
-    \Drupal::cache()->invalidateMultiple($this->getCacheTags());
   }
 
   /**
@@ -151,16 +151,6 @@ class DracoCoffeeManager {
       $this->state->delete('draco_coffee.start');
       $this->state->delete('draco_coffee.barista');
     }
-  }
-
-  /**
-   * Returns the custom cache tag used to announce who makes the next pot.
-   *
-   * @return array
-   *   An array of cache tags.
-   */
-  public function getCacheTags() {
-    return ['draco_coffee:new_pot'];
   }
 
   /**

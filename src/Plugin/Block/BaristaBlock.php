@@ -4,11 +4,11 @@ namespace Drupal\draco_coffee\Plugin\Block;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\State\StateInterface;
@@ -53,13 +53,6 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
    * @var \Drupal\draco_coffee\DracoCoffeeManager
    */
   protected $dracoCoffeeManager;
-
-  /**
-   * The route match.
-   *
-   * @var \Drupal\Core\Routing\RouteMatchInterface
-   */
-  protected $routeMatch;
 
   /**
    * The State API service.
@@ -123,16 +116,24 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  protected function blockAccess(AccountInterface $account) {
-    // Display the block only for users with a particular role.
-    if ($account->hasPermission('administer draco_coffee configuration')) {
-      return AccessResult::allowed()
-        ->addCacheContexts(['route.name'])
-        ->addCacheableDependency($account)
-        ->addCacheTags($this->dracoCoffeeManager->getCacheTags());
-    }
-    return AccessResult::forbidden();
+  public function getCacheTags() {
+    return Cache::mergeTags(parent::getCacheTags(), ['user:' . $this->currentUser->id(), 'draco_coffee:state']);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return Cache::mergeContexts(parent::getCacheContexts(), ['user']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function blockAccess(AccountInterface $account) {
+    return AccessResult::allowedIfHasPermission($account, 'administer draco_coffee configuration');
+  }
+
 
   /**
    * {@inheritdoc}

@@ -117,6 +117,7 @@ class SettingsForm extends ConfigFormBase {
 
     $this->state->set('draco_coffee.start', time());
     $this->state->set('draco_coffee.pot_counter', 0);
+    \Drupal::service('cache_tags.invalidator')->invalidateTags(['draco_coffee:state']);
   }
 
 }
