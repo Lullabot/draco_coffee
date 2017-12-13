@@ -8,10 +8,6 @@
   "repositories": [
     {
       "type": "composer",
-      "url": "https://satis.draco.services.dmtio.net"
-    },
-    {
-      "type": "composer",
       "url": "https://packages.drupal.org/8"
     }
   ],
