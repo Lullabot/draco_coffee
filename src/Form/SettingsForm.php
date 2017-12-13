@@ -6,7 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
-use Drupal\draco_coffee\DracoCoffeeManager;
+use Drupal\draco_coffee\DracoCoffeePot;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -15,11 +15,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SettingsForm extends ConfigFormBase {
 
   /**
-   * The Draco Coffee Manager service.
+   * The Draco Coffee Pot service.
    *
-   * @var \Drupal\draco_coffee\DracoCoffeeManager
+   * @var \Drupal\draco_coffee\DracoCoffeePot
    */
-  protected $dracoCoffeeManager;
+  protected $dracoCoffeePot;
 
   /**
    * The State API service.
@@ -33,16 +33,16 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The Configuration Factory service.
-   * @param \Drupal\draco_coffee\DracoCoffeeManager $draco_coffee_manager
-   *   The Draco Coffee Manager service.
+   * @param \Drupal\draco_coffee\DracoCoffeePot $draco_coffee_pot
+   *   The Draco Coffee Pot service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The State API service.
    */
   public function __construct(
-    \Drupal\Core\Config\ConfigFactoryInterface $config_factory, DracoCoffeeManager $draco_coffee_manager, StateInterface $state
+    \Drupal\Core\Config\ConfigFactoryInterface $config_factory, DracoCoffeePot $draco_coffee_pot, StateInterface $state
   ) {
     parent::__construct($config_factory);
-    $this->dracoCofeeManager = $draco_coffee_manager;
+    $this->dracoCoffeePot = $draco_coffee_pot;
     $this->state = $state;
   }
 
@@ -52,7 +52,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('draco_coffee.manager'),
+      $container->get('draco_coffee.pot'),
       $container->get('state')
     );
   }
@@ -75,6 +75,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form = parent::buildForm($form, $form_state);
+
     $config = $this->config('draco_coffee.settings');
 
     $form['role'] = [
@@ -92,7 +94,9 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('pots'),
     ];
 
-    return parent::buildForm($form, $form_state);
+    $form['actions']['submit']['#value'] = $this->t('Start');
+
+    return $form;
   }
 
   /**
@@ -103,11 +107,14 @@ class SettingsForm extends ConfigFormBase {
       ->set('role', $form_state->getValue('role'))
       ->set('pots', $form_state->getValue('pots'))
       ->save();
-    parent::submitForm($form, $form_state);
 
     $this->state->set('draco_coffee.start', time());
     $this->state->set('draco_coffee.pot_counter', 0);
-    \Drupal::service('cache_tags.invalidator')->invalidateTags(['draco_coffee:state']);
+    $this->dracoCoffeePot->setBarista();
+    $this->dracoCoffeePot->increasePotCounter();
+    $this->dracoCoffeePot->invalidateCache();
+
+    drupal_set_message($this->t('Coffee is on the way!'));
   }
 
 }

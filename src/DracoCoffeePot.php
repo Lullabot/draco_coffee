@@ -3,14 +3,22 @@
 namespace Drupal\draco_coffee;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\State\StateInterface;
 
 /**
- * DracoCoffeeManager service.
+ * DracoCoffeePot service.
  */
-class DracoCoffeeManager {
+class DracoCoffeePot {
+
+  /**
+   * The cache tags invalidator service.
+   *
+   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface
+   */
+  protected $cacheTagsInvalidator;
 
   /**
    * The config factory.
@@ -41,9 +49,11 @@ class DracoCoffeeManager {
   protected $time;
 
   /**
-   * Constructs a DracoCoffeeManager object.
+   * Constructs a DracoCoffeePot object.
    *
-   * @param \Drupal\draco_coffee\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_tags_invalidator
+   *   The cache tag invalidator service.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface
    *   The Entity Type Manager service.
@@ -52,7 +62,8 @@ class DracoCoffeeManager {
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The Time service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, StateInterface $state, TimeInterface $time) {
+  public function __construct(CacheTagsInvalidatorInterface $cache_tags_invalidator, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, StateInterface $state, TimeInterface $time) {
+    $this->cacheTagsInvalidator = $cache_tags_invalidator;
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
     $this->state = $state;
@@ -60,26 +71,25 @@ class DracoCoffeeManager {
   }
 
   /**
-   * Cron implementation.
+   * Finds the next barista.
    */
-  public function cron() {
+  public function makeCoffee() {
     $config = $this->configFactory->get('draco_coffee.settings');
     if (empty($this->state->get('draco_coffee.start')) ||
       empty($config->get('role')) ||
-      empty($config->get('pots')) ||
-      empty($config->get('interval'))) {
+      empty($config->get('pots')) ) {
       return;
     }
 
     if ($this->isRefillNeeded()) {
       $this->setBarista();
       $this->increasePotCounter();
-
     }
     else {
       $this->clear();
     }
-    \Drupal::service('cache_tags.invalidator')->invalidateTags(['draco_coffee:state']);
+
+    $this->invalidateCache();
   }
 
   /**
@@ -102,7 +112,7 @@ class DracoCoffeeManager {
   /**
    * Sets the editor to become barista for the next coffee pot.
    */
-  protected function setBarista() {
+  public function setBarista() {
     $config = $this->configFactory->get('draco_coffee.settings');
     $candidates = $this->entityTypeManager->getStorage('user')
       ->getQuery()
@@ -116,7 +126,7 @@ class DracoCoffeeManager {
   /**
    * Increases the pot counter.
    */
-  protected function increasePotCounter() {
+  public function increasePotCounter() {
     $this->state->set('draco_coffee.pot_counter', $this->state->get('draco_coffee.pot_counter') + 1);
   }
 
@@ -150,6 +160,9 @@ class DracoCoffeeManager {
       $this->state->delete('draco_coffee.start');
       $this->state->delete('draco_coffee.barista');
     }
+
+    // Invalidate cache since we changed the state.
+    $this->invalidateCache();
   }
 
   /**
@@ -183,6 +196,41 @@ class DracoCoffeeManager {
   public function getRole() {
     $config = $this->configFactory->get('draco_coffee.settings');
     return $config->get('role');
+  }
+
+  /**
+   * Returns the custom tag used to mark the State API data as valid/invalid.
+   *
+   * @return string
+   *   The custom cache tag.
+   */
+  public function getCacheTag() {
+    return 'draco_coffee.barista';
+  }
+
+  /**
+   * Invalidates the custom tag.
+   */
+  public function invalidateCache() {
+    $this->cacheTagsInvalidator->invalidateTags([$this->getCacheTag()]);
+  }
+
+  /**
+   * Returns the pot counter as an ordinal
+   *
+   * @return string
+   *   The current pot number as an ordinal.
+   */
+  public function getPotCounter() {
+    $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+    $number = $this->state->get('draco_coffee.pot_counter');
+
+    if ((($number % 100) >= 11) && (($number%100) <= 13)) {
+      return $number . 'th';
+    }
+    else {
+      return $number . $ends[$number % 10];
+    }
   }
 
 }

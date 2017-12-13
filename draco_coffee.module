@@ -9,5 +9,5 @@
  * Implements hook_cron().
  */
 function draco_coffee_cron() {
-  \Drupal::service('draco_coffee.manager')->cron();
+  \Drupal::service('draco_coffee.pot')->makeCoffee();
 }
