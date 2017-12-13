@@ -4,7 +4,6 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Drupal\block\Entity\Block;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
-use Drupal\Tests\block\Traits\BlockCreationTrait;
 
 /**
  * Behat steps for testing the draco_coffee module.

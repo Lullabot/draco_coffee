@@ -39,7 +39,9 @@ class SettingsForm extends ConfigFormBase {
    *   The State API service.
    */
   public function __construct(
-    \Drupal\Core\Config\ConfigFactoryInterface $config_factory, DracoCoffeePot $draco_coffee_pot, StateInterface $state
+    ConfigFactoryInterface $config_factory,
+    DracoCoffeePot $draco_coffee_pot,
+    StateInterface $state
   ) {
     parent::__construct($config_factory);
     $this->dracoCoffeePot = $draco_coffee_pot;

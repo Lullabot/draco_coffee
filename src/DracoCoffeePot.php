@@ -55,7 +55,7 @@ class DracoCoffeePot {
    *   The cache tag invalidator service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The Entity Type Manager service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The State API service.
@@ -77,7 +77,7 @@ class DracoCoffeePot {
     $config = $this->configFactory->get('draco_coffee.settings');
     if (empty($this->state->get('draco_coffee.start')) ||
       empty($config->get('role')) ||
-      empty($config->get('pots')) ) {
+      empty($config->get('pots'))) {
       return;
     }
 
@@ -178,7 +178,7 @@ class DracoCoffeePot {
   /**
    * Returns the user account of the current barista.
    *
-   * @return \Drupal\Core\Session\AccountProxyInterface|NULL
+   * @return \Drupal\Core\Session\AccountProxyInterface|null
    *   The user account or NULL if there is no barista.
    */
   public function getBarista() {
@@ -216,16 +216,16 @@ class DracoCoffeePot {
   }
 
   /**
-   * Returns the pot counter as an ordinal
+   * Returns the pot counter as an ordinal.
    *
    * @return string
    *   The current pot number as an ordinal.
    */
   public function getPotCounter() {
-    $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+    $ends = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
     $number = $this->state->get('draco_coffee.pot_counter');
 
-    if ((($number % 100) >= 11) && (($number%100) <= 13)) {
+    if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
       return $number . 'th';
     }
     else {

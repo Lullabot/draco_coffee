@@ -7,7 +7,6 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -130,12 +129,11 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
     return AccessResult::allowedIfHasPermission($account, 'administer draco_coffee configuration');
   }
 
-
   /**
    * {@inheritdoc}
    */
   public function build() {
-    /** @var AccountProxyInterface $barista */
+    /** @var \Drupal\Core\Session\AccountProxyInterface $barista */
     $barista = $this->dracoCoffeePot->getBarista();
     if (!$barista) {
       $markup = $this->t('No coffee being served');
