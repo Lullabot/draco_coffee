@@ -1,0 +1,4 @@
+administer draco_coffee configuration:
+  title: 'Administer draco_coffee configuration'
+  description: 'Optional description.'
+  restrict access: true

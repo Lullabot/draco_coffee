@@ -1,0 +1,4 @@
+services:
+  draco_coffee.pot:
+    class: Drupal\draco_coffee\DracoCoffeePot
+    arguments: ['@cache_tags.invalidator', '@config.factory', '@entity_type.manager', '@state', '@datetime.time']

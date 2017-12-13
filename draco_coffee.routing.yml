@@ -1,0 +1,7 @@
+draco_coffee.settings_form:
+  path: '/admin/config/system/draco-coffee'
+  defaults:
+    _title: 'Draco Coffee settings'
+    _form: 'Drupal\draco_coffee\Form\SettingsForm'
+  requirements:
+    _permission: 'administer draco_coffee configuration'
