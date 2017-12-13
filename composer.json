@@ -15,8 +15,6 @@
       "url": "https://packages.drupal.org/8"
     }
   ],
-  "require": {
-  },
   "require-dev": {
     "cweagans/composer-patches": "^1.6",
     "behat/mink-selenium2-driver": "^1.3",
