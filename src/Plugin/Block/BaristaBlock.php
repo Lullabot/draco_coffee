@@ -135,7 +135,7 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
   public function build() {
     /** @var \Drupal\Core\Session\AccountProxyInterface $barista */
     $barista = $this->dracoCoffeePot->getBarista();
-    if (!$barista) {
+    if (empty($barista->id())) {
       $markup = $this->t('No coffee being served');
     }
     elseif ($barista->id() == $this->currentUser->getAccount()->id()) {

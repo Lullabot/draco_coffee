@@ -6,6 +6,7 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\State\StateInterface;
 
 /**
@@ -178,16 +179,23 @@ class DracoCoffeePot {
   /**
    * Returns the user account of the current barista.
    *
-   * @return \Drupal\Core\Session\AccountProxyInterface|null
-   *   The user account or NULL if there is no barista.
+   * @return \Drupal\Core\Session\AccountProxyInterface
+   *   The user account or an empty account object if there is no barista.
    */
   public function getBarista() {
     $uid = $this->state->get('draco_coffee.barista');
-    if (empty($uid)) {
-      return NULL;
+    $account = NULL;
+
+    if (!empty($uid)) {
+      $account = $this->entityTypeManager->getStorage('user')
+        ->load($this->state->get('draco_coffee.barista'));
     }
-    return $this->entityTypeManager->getStorage('user')
-      ->load($this->state->get('draco_coffee.barista'));
+
+    if (empty($account)) {
+      $account = new AccountProxy();
+    }
+
+    return $account;
   }
 
   /**
