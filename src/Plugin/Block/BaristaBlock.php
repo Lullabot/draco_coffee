@@ -5,7 +5,6 @@ namespace Drupal\draco_coffee\Plugin\Block;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -54,7 +53,7 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
    * @param \Drupal\draco_coffee\DracoCoffeePot $draco_coffee_pot
    *   The Draco Coffee Pot service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition,AccountProxyInterface $current_user, DracoCoffeePot $draco_coffee_pot) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, AccountProxyInterface $current_user, DracoCoffeePot $draco_coffee_pot) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->currentUser = $current_user;
     $this->dracoCoffeePot = $draco_coffee_pot;
