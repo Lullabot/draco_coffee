@@ -5,21 +5,19 @@ Feature: Draco Coffee test
   I need to be able to manage coffee pots
 
   Scenario: Configure a set of coffee pots and verify that they are shown
-    Given I am logged in as a user with the "administer draco_coffee configuration" permission
-    When I am on "admin/config/system/draco-coffee"
-    And I select "Administrator" from "Role of the coffee makers"
+    Given there are editors Tom and Iggy
+    When I am logged in as "tom.waits"
+    And I am on "admin/config/system/draco-coffee"
+    And I select "Editor" from "Role of the coffee makers"
     And I fill in "Number of times to refill the pot" with "5"
     And I press "Start"
     Then I should see "Coffee is on the way!"
 
   Scenario: Test the logic to pick a barista
-    Given users:
-      | name      | mail             | roles         |
-      | tom.waits | tom@example.com  | editor        |
-      | iggy.pop  | iggy@example.com | editor        |
+    Given there are editors Tom and Iggy
     When I am logged in as "tom.waits"
     And I am on "admin/config/system/draco-coffee"
-    And I select "editor" from "Role of the coffee makers"
+    And I select "Editor" from "Role of the coffee makers"
     And I fill in "Number of times to refill the pot" with "5"
     And I press "Start"
     And I hack the state to set Tom as the barista
@@ -29,13 +27,10 @@ Feature: Draco Coffee test
     And I should see "User tom.waits is making the 1st pot of COFFEEEEEEEEEEEEEEEEEEEE"
 
   Scenario: Coffee block changes when cron runs
-    Given users:
-      | name      | mail             | roles         |
-      | tom.waits | tom@example.com  | editor        |
-      | iggy.pop  | iggy@example.com | editor        |
+    Given there are editors Tom and Iggy
     When I am logged in as "tom.waits"
     And I am on "admin/config/system/draco-coffee"
-    And I select "editor" from "Role of the coffee makers"
+    And I select "Editor" from "Role of the coffee makers"
     And I fill in "Number of times to refill the pot" with "5"
     And I press "Start"
     And am on "/"

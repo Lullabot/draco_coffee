@@ -7,6 +7,8 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\draco_coffee\DracoCoffeePot;
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -81,22 +83,30 @@ class SettingsForm extends ConfigFormBase {
 
     $config = $this->config('draco_coffee.settings');
 
-    $form['role'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Role of the coffee makers'),
-      '#description' => $this->t('Select the role that will be used to find who will make each coffee pot.'),
-      '#default_value' => $config->get('role'),
-      '#options' => user_role_names(TRUE),
-    ];
+    $roles = $this->getRoles();
+    if (empty($roles)) {
+      $form['role'] = [
+        '#markup' => $this->t('Add the permission "Administer draco_coffee configuration" to a role before completing this form.'),
+      ];
+    }
+    else {
+      $form['role'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Role of the coffee makers'),
+        '#description' => $this->t('Select the role that will be used to find who will make each coffee pot.'),
+        '#default_value' => $config->get('role'),
+        '#options' => $roles,
+      ];
 
-    $form['pots'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Number of times to refill the pot'),
-      '#description' => $this->t('If a team needs coffee for 8 hours, then they would need 8 pots. Every hour a different user will be announced to refill the pot.'),
-      '#default_value' => $config->get('pots'),
-    ];
+      $form['pots'] = [
+        '#type' => 'number',
+        '#title' => $this->t('Number of times to refill the pot'),
+        '#description' => $this->t('If a team needs coffee for 8 hours, then they would need 8 pots. Every hour a different user will be announced to refill the pot.'),
+        '#default_value' => $config->get('pots'),
+      ];
 
-    $form['actions']['submit']['#value'] = $this->t('Start');
+      $form['actions']['submit']['#value'] = $this->t('Start');
+    }
 
     return $form;
   }
@@ -117,6 +127,26 @@ class SettingsForm extends ConfigFormBase {
     $this->dracoCoffeePot->invalidateCache();
 
     drupal_set_message($this->t('Coffee is on the way!'));
+  }
+
+  /**
+   * Helper function to get the barista roles.
+   *
+   * @return array
+   *   An array of keyed roles.
+   */
+  protected function getRoles() {
+    $roles = Role::loadMultiple();
+    unset($roles[RoleInterface::ANONYMOUS_ID]);
+    unset($roles['administrator']);
+
+    $roles = array_filter($roles, function ($role) {
+      return $role->hasPermission('administer draco_coffee configuration');
+    });
+
+    return array_map(function ($item) {
+      return $item->label();
+    }, $roles);
   }
 
 }

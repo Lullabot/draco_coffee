@@ -4,6 +4,8 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Drupal\block\Entity\Block;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Drupal\user\Entity\Role;
+use \Drupal\user\Entity\User;
 
 /**
  * Behat steps for testing the draco_coffee module.
@@ -35,10 +37,37 @@ class DracoCoffeeFeatureContext extends RawDrupalContext implements SnippetAccep
   }
 
   /**
+   * @Given there are editors Tom and Iggy
+   */
+  public function thereAreEditorsTomAndIggy() {
+    // Create the editor role.
+    $data = ['id' => 'BDD_editor', 'label' => 'Editor'];
+    $role = Role::create($data);
+    $role->grantPermission('administer draco_coffee configuration');
+    $role->save();
+
+    // Create users.
+    $users = [
+      (object) [
+        'name' => 'tom.waits',
+        'pass' => 'claphands',
+        'roles' => 'BDD_editor',
+      ],
+      (object) [
+        'name' => 'iggy.pop',
+        'pass' => 'passenger',
+        'roles' => 'BDD_editor',
+      ],
+    ];
+    foreach ($users as $user) {
+      $account = $this->userCreate($user);
+    }
+  }
+
+  /**
    * @When I hack the state to set Tom as the barista
    */
-  public function iHackTheStateToSetTomAsTheBarista()
-  {
+  public function iHackTheStateToSetTomAsTheBarista() {
     $result = \Drupal::entityTypeManager()->getStorage('user')
       ->getQuery()
       ->condition('name', 'tom.waits')
@@ -51,8 +80,7 @@ class DracoCoffeeFeatureContext extends RawDrupalContext implements SnippetAccep
   /**
    * @When I force the next pot to be made
    */
-  public function iForceTheNextPotToBeMade()
-  {
+  public function iForceTheNextPotToBeMade() {
     \Drupal::state()->set('draco_coffee.start', 1);
     \Drupal::service('draco_coffee.pot')->makeCoffee();
   }
@@ -69,11 +97,12 @@ class DracoCoffeeFeatureContext extends RawDrupalContext implements SnippetAccep
    *   (optional) An associative array of settings for the block entity.
    *   Override the defaults by specifying the key and value in the array, for
    *   example:
-   *   @code
+   *
+   * @code
    *     $this->drupalPlaceBlock('system_powered_by_block', array(
    *       'label' => t('Hello, world!'),
    *     ));
-   *   @endcode
+   * @endcode
    *   The following defaults are provided:
    *   - label: Random string.
    *   - ID: Random string.
@@ -88,21 +117,21 @@ class DracoCoffeeFeatureContext extends RawDrupalContext implements SnippetAccep
    *   Add support for creating custom block instances.
    */
   public static function placeBlock($plugin_id) {
-    $values = array(
+    $values = [
       // A unique ID for the block instance.
       'id' => 'BDD_barista_block',
       // The plugin block id as defined in the class.
       'plugin' => 'draco_coffee_barista',
       // The machine name of the theme region.
       'region' => 'sidebar_first',
-      'settings' => array(
+      'settings' => [
         'label' => 'BDD Barista',
-      ),
+      ],
       // The machine name of the theme.
       'theme' => 'bartik',
-      'visibility' => array(),
+      'visibility' => [],
       'weight' => 100,
-    );
+    ];
     $block = Block::create($values);
     $block->save();
   }
@@ -114,20 +143,22 @@ class DracoCoffeeFeatureContext extends RawDrupalContext implements SnippetAccep
    */
   public static function cleanupBlocks() {
     $storage = \Drupal::entityTypeManager()->getStorage('block');
-    $ids = $storage->getQuery()->condition('id', 'BDD_', 'STARTS_WITH')->execute();
+    $ids = $storage->getQuery()
+      ->condition('id', 'BDD_', 'STARTS_WITH')
+      ->execute();
     $entities = $storage->loadMultiple($ids);
     $storage->delete($entities);
   }
 
   /**
-   * Removes test users.
+   * Removes test roles.
    *
-   * @AfterSuite
+   * @AfterScenario
    */
-  public static function cleanupUsers() {
-    $storage = \Drupal::entityTypeManager()->getStorage('user');
+  public static function cleanupRoles() {
+    $storage = \Drupal::entityTypeManager()->getStorage('user_role');
     $ids = $storage->getQuery()
-      ->condition('name', ['tom.waits', 'iggy.pop'], 'IN')
+      ->condition('id', 'BDD_', 'STARTS_WITH')
       ->execute();
     $entities = $storage->loadMultiple($ids);
     $storage->delete($entities);
