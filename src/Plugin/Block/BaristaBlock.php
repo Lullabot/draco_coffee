@@ -6,11 +6,9 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\Core\State\StateInterface;
 use Drupal\draco_coffee\DracoCoffeePot;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,13 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The config factory.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
-
-  /**
    * The current user service.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
@@ -40,25 +31,11 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
   protected $currentUser;
 
   /**
-   * The Entity Type Manager service.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
    * The Draco Coffee Pot service.
    *
    * @var \Drupal\draco_coffee\DracoCoffeePot
    */
   protected $dracoCoffeePot;
-
-  /**
-   * The State API service.
-   *
-   * @var \Drupal\Core\State\StateInterface
-   */
-  protected $state;
 
   /**
    * Constructs a new ExampleBlock instance.
@@ -72,24 +49,15 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The cofiguration factory service.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   The current user service.
    * @param \Drupal\draco_coffee\DracoCoffeePot $draco_coffee_pot
    *   The Draco Coffee Pot service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager service.
-   * @param \Drupal\Core\State\StateInterface $state
-   *   The State API service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, AccountProxyInterface $current_user, DracoCoffeePot $draco_coffee_pot, EntityTypeManagerInterface $entity_type_manager, StateInterface $state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition,AccountProxyInterface $current_user, DracoCoffeePot $draco_coffee_pot) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->configFactory = $config_factory;
     $this->currentUser = $current_user;
     $this->dracoCoffeePot = $draco_coffee_pot;
-    $this->entityTypeManager = $entity_type_manager;
-    $this->state = $state;
   }
 
   /**
@@ -100,11 +68,8 @@ class BaristaBlock extends BlockBase implements ContainerFactoryPluginInterface 
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory'),
       $container->get('current_user'),
-      $container->get('draco_coffee.pot'),
-      $container->get('entity_type.manager'),
-      $container->get('state')
+      $container->get('draco_coffee.pot')
     );
   }
 
