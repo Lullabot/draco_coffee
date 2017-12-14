@@ -221,6 +221,7 @@ class DracoCoffeePot {
    */
   public function invalidateCache() {
     $this->cacheTagsInvalidator->invalidateTags([$this->getCacheTag()]);
+    $this->state->resetCache();
   }
 
   /**
