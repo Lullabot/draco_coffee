@@ -132,19 +132,6 @@ class DracoCoffeePot {
   }
 
   /**
-   * Checks if a given user identifier is the barista.
-   *
-   * @param int $uid
-   *   A user identifier.
-   *
-   * @return bool
-   *   TRUE if the given user is the barista. FALSE otherwise.
-   */
-  public function isBarista($uid) {
-    return $uid == $this->state->get('draco_coffee.barista');
-  }
-
-  /**
    * Clears status variables after the last pot has been drunk.
    */
   protected function clear() {
@@ -196,14 +183,6 @@ class DracoCoffeePot {
     }
 
     return $account;
-  }
-
-  /**
-   * Returns the role for baristas.
-   */
-  public function getRole() {
-    $config = $this->configFactory->get('draco_coffee.settings');
-    return $config->get('role');
   }
 
   /**
