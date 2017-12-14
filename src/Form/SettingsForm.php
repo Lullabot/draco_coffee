@@ -3,11 +3,11 @@
 namespace Drupal\draco_coffee\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\draco_coffee\DracoCoffeePot;
-use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -24,6 +24,13 @@ class SettingsForm extends ConfigFormBase {
   protected $dracoCoffeePot;
 
   /**
+   * The Entity Type Manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * The State API service.
    *
    * @var \Drupal\Core\State\StateInterface
@@ -37,16 +44,20 @@ class SettingsForm extends ConfigFormBase {
    *   The Configuration Factory service.
    * @param \Drupal\draco_coffee\DracoCoffeePot $draco_coffee_pot
    *   The Draco Coffee Pot service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The Entity Type Manager service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The State API service.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     DracoCoffeePot $draco_coffee_pot,
+    EntityTypeManagerInterface $entity_type_manager,
     StateInterface $state
   ) {
     parent::__construct($config_factory);
     $this->dracoCoffeePot = $draco_coffee_pot;
+    $this->entityTypeManager = $entity_type_manager;
     $this->state = $state;
   }
 
@@ -57,6 +68,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('draco_coffee.pot'),
+      $container->get('entity_type.manager'),
       $container->get('state')
     );
   }
@@ -136,7 +148,7 @@ class SettingsForm extends ConfigFormBase {
    *   An array of keyed roles.
    */
   protected function getRoles() {
-    $roles = Role::loadMultiple();
+    $roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple(NULL);
     unset($roles[RoleInterface::ANONYMOUS_ID]);
     unset($roles['administrator']);
 

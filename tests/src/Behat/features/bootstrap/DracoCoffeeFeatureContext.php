@@ -5,7 +5,6 @@ use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Drupal\block\Entity\Block;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\user\Entity\Role;
-use \Drupal\user\Entity\User;
 
 /**
  * Behat steps for testing the draco_coffee module.
